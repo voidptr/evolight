@@ -42,6 +42,7 @@ class WindowPref:
                 (self.pos.top, self.pos.bottom, self.pos.left, self.pos.right, self.has_border, self.windowname)
 
     def init(self):
+        """Actually initializes the window."""
         self.debug("init")
 
         self.window = curses.newwin(self.height(), self.width(), self.pos.top, self.pos.left)
@@ -54,20 +55,24 @@ class WindowPref:
 
     def debug(self, message):
         if self.debughook:
-            #self.debughook(str(self))
-            #self.debughook(" %s" % message)
             return
 
-    def clear(self):  # set up the basic shit, since we just cleared it.
+    def clear(self, line=None):  # set up the basic shit, since we just cleared it.
+        """Clear this window (or line)."""
         self.debug("clear")
 
-        self.window.clear()
-        if self.has_border:
-            self.window.border()
+        if line:
+            blanks = "".ljust(self.width(), " ")
+            self.draw_text(blanks, top=line)
+        else:
+            self.window.clear()
+            if self.has_border:
+                self.window.border()
 
         self.refresh()
 
     def refresh(self):
+        """Perform a refresh on this window."""
         self.debug("refresh")
         self.window.refresh()
 
@@ -100,8 +105,6 @@ class WindowPref:
         if not left:
             left = self.textbox.left
 
-        #self.debug("_draw_text_base text: %s attr:%s top:%s left:%s" % (text, attr, top, left))
-
         line_width = self.text_width()
         line_ct = len(text) / float(line_width)
         line_ct = int(math.ceil(line_ct))
@@ -116,6 +119,7 @@ class WindowPref:
             self._draw_line(line, attr=attr, top=(top + i), left=left)
 
     def draw_text_centered(self, text, attr=None, top=None):
+        """Draw some centered text."""
         centerpoint = self.width() / 2
         half_text_length = len(text) / 2
         left = centerpoint - half_text_length
@@ -123,12 +127,12 @@ class WindowPref:
         self.draw_text(text, attr=attr, top=top, left=left)
 
     def draw_text(self, text, attr=None, top=None, left=None):
-        #self.clear()
-
+        """Draw some text."""
         self._draw_text_base(text, attr=attr, top=top, left=left)
 
         self.refresh()
 
     def grab_cursor(self, top=0, left=0):
+        """Grab the cursor and return it to this window."""
         self.debug("grab_cursor")
         self.mainwindow.move(self.pos.top + self.textbox.top + top, self.pos.left + self.textbox.left + left)
