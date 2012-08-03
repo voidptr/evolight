@@ -60,6 +60,13 @@ def init_default_colors():
 
 ## set up the curses environment
 stdscr = curses.initscr()
+if not (curses.has_colors() and curses.can_change_color()):
+    curses.echo()
+    curses.endwin()
+    print "Your terminal does not support color changing. Sorry."
+    exit()
+
+
 stdscr.timeout(0)
 curses.start_color()
 curses.use_default_colors()
