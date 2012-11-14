@@ -1,46 +1,62 @@
 #include "utils.h"
 
 /// evolution program setup
-const char __length__ = 18;
-const char __traits__ = 3;
-const char __population_size__ = 10;
+const byte __length__ = 9; // the number of loci
+const byte __traits__ = 3; // the number of traits per loci (probably wrong phrasing)
+const byte __population_size__ = 24;
 float __per_site_mutation_rate__ = 0.01;
-const int __max_trait_val__ = 256;
+const byte __max_trait_val__ = 255;
 const int __genome_length__ = __length__ * __traits__;
 const float __selection_threshold__ = 0.25;
+const long __max_diff_val__ = __max_trait_val__ * __genome_length__;
+const long __max_trait_variation__ = __traits__ * 255;
 
-char population[__population_size__][__genome_length__]; // population
-int fitnesses[__population_size__]; // index and fitness
+byte population[__population_size__][__length__][__traits__]; // population
+byte candidates[__population_size__][__length__][__traits__]; // population
+long inverse_fitnesses[__population_size__]; // index and fitness
+
 
 void cycle_mutation_rate() {
   __per_site_mutation_rate__ = __per_site_mutation_rate__ * 2;
   
   if (__per_site_mutation_rate__ > 0.5) { __per_site_mutation_rate__ = 0.01; }
-//  Serial.print("Mutation Rate: ");
-//  Serial.println(__per_site_mutation_rate__); 
+  
+  Serial.print("Mutation Rate: ");
+  Serial.println(__per_site_mutation_rate__); 
 }
 
-char get_rand_trait() {
-  return char(random(0, 256));
+byte get_rand_trait() {
+  return byte(random(0, 256));
 }
 
 int is_mut() {
-  return random(0, 100) < __per_site_mutation_rate__ * 100;
+  return random(0, 1000) < __per_site_mutation_rate__ * 1000;
 }
 
-void swap_genomes(int index1, int index2) {
 
-  char tmp = 0;
-  for (int i=0; i < __genome_length__; i++) {
-    tmp = population[index1][i];
-    population[index1][i] = population[index2][i];
-    population[index2][i] = tmp;
+void randomize_locus(int locus) {
+  for (int org = 0; org < __population_size__; org++) {  
+    for (int trait = 0; trait < __traits__; trait++) {
+      population[org][locus][trait] = get_rand_trait();
+    }
   }
 }
 
-void comb_sort(int input[], int n) {
+void swap_genomes(int org_index1, int org_index2) {
+
+  byte tmp = 0;
+  for (int locus = 0; locus < __length__; locus++) {
+    for (int trait = 0; trait < __traits__; trait++) {
+      tmp = population[org_index1][locus][trait];
+      population[org_index1][locus][trait] = population[org_index2][locus][trait];
+      population[org_index2][locus][trait] = tmp;
+    }
+  }
+}
+
+void comb_sort(long input[], int n) {
     
-    int swap;
+    long swap;
     int i, gap = n;
     bool swapped = false;
  
@@ -64,64 +80,213 @@ void comb_sort(int input[], int n) {
     }
 }
 
-int calculate_fitness( char genome[] )
+// THIS METHOD WAS ANNOYING TO FIGURE OUT
+long diff_circular( byte trait1, byte trait2 ) {
+  long diff = 128 - abs( (abs(int(trait1)-int(trait2)) % 256) - 128);
+  return diff;
+}
+
+long diff_linear( byte trait1, byte trait2 ) {
+  long diff = abs(int(trait1)-int(trait2));
+  return diff;
+}
+
+long calculate_locus_differences( byte genome[][__traits__] )
 {
-  int colordiff = 0, rdiff = 0, gdiff = 0, bdiff = 0;
-  for (int i = 3; i < __genome_length__ - 2; i += 3) {
-    rdiff = abs( genome[i-3] - genome[i] );
-    gdiff = abs( genome[i-2] - genome[i+1] );
-    bdiff = abs( genome[i-1] - genome[i+2] );   
+  long total_diff = 0, locus_diff = 0, trait_diff = 0;
+  for (int locus = 0; locus < __length__ - 1; locus++) { // each locus, allowing for sliding window
+    locus_diff = 0;
+    for (int trait = 0; trait < __traits__; trait++) {
+      trait_diff = abs( genome[locus][trait] - genome[locus + 1][trait] );
+      locus_diff += trait_diff;
+    }
+    total_diff += locus_diff;   
+  }
    
-    colordiff += (rdiff + gdiff + bdiff);    
-  }
-  
-  return colordiff;
+  return total_diff;
 }
 
-void calculate_fitnesses() {
+long calculate_inverse_trait_variation( byte genome[][__traits__] )
+{
+  long total_variation = 0;
+  for (int locus = 0; locus < __length__; locus++) { // each locus, allowing for sliding window
+    int variation = 0;
+    for (int trait = 0; trait < __traits__ - 1; trait++) {
+      variation += diff_linear( genome[locus][trait], genome[locus][trait + 1] );
+    }
+    variation += diff_linear( genome[locus][__traits__ - 1], genome[locus][0] );
+    total_variation += (__max_trait_variation__ - variation);
+  }
+   
+  return total_variation;
+}
+
+void calculate_locus_differences__population() {
   for (int i =0; i < __population_size__; i++) {
-    fitnesses[i] = calculate_fitness( population[i] );
+
+    long loc_diff = calculate_locus_differences( population[i] );
+    long trait_var = calculate_inverse_trait_variation( population[i] );
+    
+    Serial.print(loc_diff);
+    Serial.print(" - ");    
+    Serial.println(trait_var);
+    
+    inverse_fitnesses[i] = loc_diff + trait_var;
   }
   
-  comb_sort(fitnesses, __population_size__);
+  comb_sort(inverse_fitnesses, __population_size__);
 }
 
-void print_highestfitness() {
-  Serial.println(fitnesses[0]);  
+void print_best_inverse_fitness() {
+  Serial.println(inverse_fitnesses[0]);  
+}
+
+void print_population_inverse_fitnesses() {
+  for (int i = 0; i < __population_size__; i++) { 
+    Serial.println(inverse_fitnesses[i]);  
+  }
 }
 
 void init_random_population() {
  
-  for (int i=0; i < __population_size__; i++) {  
-    for (int j=0; j < __genome_length__; j++) {     
-      population[i][j] = get_rand_trait();
+  for (int org=0; org < __population_size__; org++) {  
+    for (int locus=0; locus < __length__; locus++) {     
+      for (int trait=0; trait < __traits__; trait++) {
+        population[org][locus][trait] = get_rand_trait();
+      }
     } 
   }
  
-  calculate_fitnesses();
+  calculate_locus_differences__population();
 }
 
+// reset the whole thing
 void reset_ga() {
+  __per_site_mutation_rate__ = 0.01;
   init_random_population();
 }
 
 // mutate a candidate genome. this is analogous to errors during gametogenensis. 
-void mutate(char genome[]) { 
-  for (int i = 0; i < __genome_length__; i++) {
-    if (is_mut()) { // mutate
-      genome[i] = get_rand_trait();
+void mutate(byte genome[][__traits__]) { 
+  for (int locus = 0; locus < __length__; locus++) {
+    for (int trait = 0; trait < __traits__; trait++) {
+      if (is_mut()) { // mutate
+        genome[locus][trait] = get_rand_trait();
+      }
     }
   }
 }
 
 // this overwrites whatever's in the target slot with whatever the source was
-void copy_genome(char source[], char target[]) {
+void copy_genome(byte source[][__traits__], byte target[][__traits__]) {
 //  Serial.println("copy_genome()");
-  for (int i = 0; i < __genome_length__; i++) {
-    target[i] = source[i];
+  for (int locus = 0; locus < __length__; locus++) {
+    for (int trait = 0; trait < __traits__; trait++) {
+      target[locus][trait] = source[locus][trait];
+    }
   } 
 }
 
+void select_candidates() {
+  int l = 0, r = 0, random_index = 0, target = 0;
+  
+  // 50% of candidates are drawn from the top 25%
+  l = 0;
+  r = __population_size__ * .25;
+  Serial.print("Top 25% -> 50% ");
+  Serial.print(l);
+  Serial.print(" ");
+  Serial.println(r);  
+  for (int i = 0; i < (__population_size__ * .5); i++) {
+    random_index = random(l, r + 1);
+    Serial.print(random_index);
+    Serial.print(" --> ");
+    Serial.println(target); 
+    copy_genome( population[random_index], candidates[target++] );
+  }
+  
+  
+  // 30% of candidates are drawn from the middle 50%
+  l = __population_size__ * .25;
+  r = __population_size__ * .75;  
+  Serial.print("Top 25% -> 50% ");
+  Serial.print(l);
+  Serial.print(" ");
+  Serial.println(r);    
+  for (int i = 0; i < (__population_size__ * .3); i++) {
+    random_index = random(l, r + 1);
+    Serial.print(random_index);
+    Serial.print(" --> ");
+    Serial.println(target);    
+    copy_genome( population[random_index], candidates[target++] );
+  }
+  
+  // 20% of candidates are drawn from the bottom 25%  
+  l = __population_size__ * .75;
+  r = __population_size__;
+  Serial.print("Top 25% -> 50% ");
+  Serial.print(l);
+  Serial.print(" ");
+  Serial.println(r);    
+  for (int i = 0; i < (__population_size__ * .2); i++) {
+    random_index = random(l, r + 1);
+    Serial.print(random_index);
+    Serial.print(" --> ");
+    Serial.println(target);    
+    copy_genome( population[random_index], candidates[target++] );    
+  }
+  Serial.println(" ");  
+}
+
+void mutate_candidates() {
+  for (int i = 0; i < __population_size__; i++) {
+    mutate(candidates[i]);
+  }
+}
+
+void recombine_candidates_into_population() {
+  byte tmp;
+  int target = 0;
+  for (int i = 0; i < (__population_size__ / 2); i++) {
+    int candidateX = random(0, __population_size__);
+    int candidateY = random(0, __population_size__);
+    
+    copy_genome( candidates[candidateX], population[target++] );
+    copy_genome( candidates[candidateY], population[target++] );
+        
+    int posA = random(0, __genome_length__);
+    int posB = random(0, __genome_length__);
+    
+    int locusA = posA / __length__;
+    int traitA = posA % __traits__;
+
+    int locusB = posB / __length__;
+    int traitB = posB % __traits__;
+
+    bool recomb = false;
+    for (int locus = 0; locus < __length__; locus++) {
+      for (int trait = 0; trait < __traits__; trait++) {
+        if ((locus == locusA || locus == locusB) && (trait == traitA || trait == traitB)) {
+          recomb = !recomb;
+        }
+        
+        if (recomb) { // swap the values
+          tmp = population[target - 2][locus][trait];
+          population[target - 2][locus][trait] = population[target - 1][locus][trait];
+          population[target - 1][locus][trait] = tmp;
+        }
+      }
+    }    
+  }  
+}
+
+void select_and_mutate() {
+  select_candidates();
+  mutate_candidates();
+  recombine_candidates_into_population();
+}
+
+/*
 // selects from among the population (assumed to be sorted)
 // mutates the population
 // recombines among the population.
@@ -195,7 +360,7 @@ void select_and_mutate() {
       }
     }    
   }
-}
+} */
 
 
 
