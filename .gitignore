@@ -1,33 +1,25 @@
-*.py[co]
-
-# Packages
-*.egg
-*.egg-info
-dist
-build
-eggs
-parts
-bin
-var
-sdist
-develop-eggs
-.installed.cfg
-
-# Installer logs
-pip-log.txt
-
-# Unit test / coverage reports
-.coverage
-.tox
-
-#Translations
-*.mo
-
-#Mr Developer
-.mr.developer.cfg
-
-#Vim
-*.swp
-
-# project specific
-log.log
+*.dep 
+*.aps 
+*.vbw 
+*.suo 
+*.obj 
+*.ncb 
+*.plg 
+*.bsc 
+*.ilk 
+*.exp 
+*.sbr 
+*.opt 
+*.pdb 
+*.idb 
+*.pch 
+*.res 
+*.user
+*\obj
+*\bin
+*\Debug
+*\Release
+Thumbs.db 
+*.exe
+*.dll
+.DS_Store

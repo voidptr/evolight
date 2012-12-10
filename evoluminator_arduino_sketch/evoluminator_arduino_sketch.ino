@@ -83,7 +83,7 @@ void check_locus_button() {
 }
 
 void check_reset() {
-  if (ResetPad) {
+  if (ResetPad > 5) {
     reset_ga();
     signal_reset_light();
     cycle_status_light();

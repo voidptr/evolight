@@ -1,3 +1,5 @@
+#include "CapacitiveSensor.h"
+
 // CapSense
 const int __pad_count__ = 21;
 const int __locus_pad_count__ = 9;
@@ -18,7 +20,7 @@ CapacitiveSensor pads[__pad_count__] = {
   CapacitiveSensor(49, 33), // 12
   CapacitiveSensor(47, 32), // 11
   CapacitiveSensor(47, 31), // 10
-  CapacitiveSensor(50, 30), // 9
+  CapacitiveSensor(50, 30), // 9 -- aha, test
   CapacitiveSensor(50, 29), // 8
   CapacitiveSensor(50, 28), // 7
   // Control Pads - 51, 52, 53
