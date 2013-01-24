@@ -1,0 +1,25 @@
+#######################################
+# Syntax Coloring Map For DmxSimple
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+BinaryOutput_Class	KEYWORD1
+BINARYOUTPUT	    KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+init_array_to_zero	KEYWORD2
+byte_to_binary_string	KEYWORD2
+int_to_binary_string KEYWORD2
+byte_array_to_debug_binary_string KEYWORD2
+  
+#######################################
+# Constants (LITERAL1)
+#######################################
+
