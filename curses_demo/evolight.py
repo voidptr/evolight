@@ -15,7 +15,6 @@ __max_trait_val__ = 256 # exclusive, vals 0-255
 def __genome_length__():
     return __length__ * __traits__ # reset
 
-
 class genome_manager:
     @staticmethod
     def get_rand_trait():
@@ -132,7 +131,7 @@ class populationmanager:
 
         self.population = newpop
 
-    def selectfittest(self):    
+    def selectfittest(self):
         return self.population[0]
 
 
@@ -146,7 +145,7 @@ class organism:
 
         for i in range(0, __genome_length__(), __traits__):
             
-            color = (int(genome[i] * 3.9), int(genome[i + 1] * 3.9), int(genome[i + 2] * 3.9))
+            color = (int(genome[i]), int(genome[i + 1]), int(genome[i+2]))
             self.colors.append(color)
 
             self.blinks.append(genome[i + 3])
