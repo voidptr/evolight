@@ -26,3 +26,5 @@ Thumbs.db
 *.exe
 *.dll
 .DS_Store
+*.pyc
+*.log
