@@ -1,0 +1,13 @@
+	
+	embedXcode
+	----------------------------------
+	Embedded Computing on Xcode 4
+
+
+	© Rei VILO, 2010-2013
+	CC = BY NC SA	
+	http://embedXcode.weebly.com/
+	
+	
+embedXcode • Mar 05, 2013 release 30 • Full support for Digispark
+embedXcode • Mar 05, 2013 release 31 • Automatic project configuration

@@ -1,0 +1,13 @@
+	
+	embedXcode
+	----------------------------------
+	Embedded Computing on Xcode 4
+
+
+	© Rei VILO, 2010-2013
+	CC = BY NC SA	
+	http://embedXcode.weebly.com/
+	
+	
+embedXcode • Jan 15, 2013 release 26 • Support for Arduino Due — Build, link and upload tested
+User Manual • Jan 01, 2013 release 19 • Updated year

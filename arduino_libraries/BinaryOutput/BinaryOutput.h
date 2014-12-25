@@ -25,6 +25,8 @@
   Converts Bytes and Arrays into their string binary representations for
   debugging purposes.
 */
+// Core library for code-sense
+#include "IDEIncludes.h"
 
 #ifndef BINARY_OUTPUT_H
 #define BINARY_OUTPUT_H

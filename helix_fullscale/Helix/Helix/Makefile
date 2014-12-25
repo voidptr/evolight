@@ -52,7 +52,7 @@ APP_LIBS_LIST = Wire Wire/utility
 # For example, Firmata may crash on Teensy 3.0
 # For example, OneWire may crash on MPIDE 0023
 #
-EXCLUDE_LIBS = Firmata WiFi Esplora OneWire
+EXCLUDE_LIBS = Firmata WiFi Esplora OneWire DSPI EEPROM Ethernet LiquidCrystal Matrix SD Servo Sprite Stepper
 
 # List users libraries here 
 #

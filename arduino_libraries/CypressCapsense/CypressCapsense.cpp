@@ -59,9 +59,9 @@ CypressCapsenseC8YC20_Class::CypressCapsenseC8YC20_Class()
     lock[2] = 0xC3;
 
 
-#if defined(_BOARD_MEGA_)
-    PORTSetPinsDigitalIn(IOPORT_B, BIT_4 | BIT_5);
-#endif
+//#if defined(_BOARD_MEGA_)
+//    PORTSetPinsDigitalIn(IOPORT_B, BIT_4 | BIT_5);
+//#endif
     Wire.begin();
 }
 
@@ -99,10 +99,10 @@ uint8_t CypressCapsenseC8YC20_Class::read(uint8_t device_address, uint8_t regist
  **          int size)
  **
  **	Parameters:
- **      device_address          - 7 Bit device address designating the device we want to talk to
- **		register_address		- 8 Bit register_address designating were to read
- **		buf			            - pointer to string of Bytes
- **		size		            - amount of data to be read
+ **     device_address          - 7 Bit device address designating the device we want to talk to
+ **		register_address		- 8 Bit register_address designating where to read
+ **		buf			            - pointer to string of bytes
+ **		size		            - number of bytes to be read
  **
  **	Return Value:
  **		none
@@ -162,7 +162,7 @@ void CypressCapsenseC8YC20_Class::readString(
  **          int size)
  **
  **	Parameters:
- **      device_address          - 7 Bit device address designating the device we want to talk to
+ **     device_address          - 7 Bit device address designating the device we want to talk to
  **		buf			            - pointer to string of Bytes
  **		size		            - amount of data to be read
  **
@@ -207,7 +207,7 @@ void CypressCapsenseC8YC20_Class::readI2CBuffer(uint8_t device_address, uint8_t 
  **          uint16_t device_address, uint16_t register_address, uint8_t data)
  **
  **	Parameters:
- **      device_address          - 7 Bit device address designating the device we want to talk to
+ **     device_address          - 7 Bit device address designating the device we want to talk to
  **		register_address		- 8 Bit register_address designating were to write
  **		data		            - Data to be written
  **
@@ -230,7 +230,7 @@ void CypressCapsenseC8YC20_Class::write(uint8_t device_address, uint8_t register
  **          uint8_t device_address, uint16_t register_address, uint8_t *data, int size)
  **
  **	Parameters:
- **      device_address          - 7 Bit device address designating the device we want to talk to
+ **     device_address          - 7 Bit device address designating the device we want to talk to
  **		register_address		- 8 Bit register_address designating were to write
  **		data		- Data to be written
  **		size		- Bytes to be written
@@ -374,18 +374,19 @@ bool CypressCapsenseC8YC20_Class::setupDevice(
     write(device_address, CSE_CS_ENABLE0, capsense0);
     write(device_address, CSE_CS_ENABLE1, capsense1);
     
-    write(device_address, CSE_CS_OTH_SET, (CSE_OTH_SET_ENABLE_EXT_CAP | CSE_OTH_SET_NO_SENSOR_RESET | CSE_OTH_SET_CLOCK_IMO2));
+//    write(device_address, CSE_CS_OTH_SET, (CSE_OTH_SET_ENABLE_EXT_CAP | CSE_OTH_SET_NO_SENSOR_RESET | CSE_OTH_SET_CLOCK_IMO2));
+    write(device_address, CSE_CS_OTH_SET, (CSE_OTH_SET_DISABLE_EXT_CAP | CSE_OTH_SET_SENSOR_RESET | CSE_OTH_SET_CLOCK_IMO));
     
-    write(device_address, CSE_CS_IDAC_00, 5);
-    write(device_address, CSE_CS_IDAC_01, 5);
-    write(device_address, CSE_CS_IDAC_02, 5);
-    write(device_address, CSE_CS_IDAC_03, 5);
-    write(device_address, CSE_CS_IDAC_04, 5);
-    write(device_address, CSE_CS_IDAC_10, 5);
-    write(device_address, CSE_CS_IDAC_11, 5);
-    write(device_address, CSE_CS_IDAC_12, 5);
-    write(device_address, CSE_CS_IDAC_13, 5);
-    write(device_address, CSE_CS_IDAC_14, 5);
+    write(device_address, CSE_CS_IDAC_00, 15);
+    write(device_address, CSE_CS_IDAC_01, 15);
+    write(device_address, CSE_CS_IDAC_02, 15);
+    write(device_address, CSE_CS_IDAC_03, 15);
+    write(device_address, CSE_CS_IDAC_04, 15);
+    write(device_address, CSE_CS_IDAC_10, 15);
+    write(device_address, CSE_CS_IDAC_11, 15);
+    write(device_address, CSE_CS_IDAC_12, 15);
+    write(device_address, CSE_CS_IDAC_13, 15);
+    write(device_address, CSE_CS_IDAC_14, 15);
     
     
     write(device_address, CSE_COMMAND_REG, STORE_CURRENT_CONFIGURATION_TO_NVM);
@@ -463,6 +464,11 @@ uint16_t CypressCapsenseC8YC20_Class::fetchRawCounts(uint8_t device_address, uin
     return tmp;
 }
 
+void CypressCapsenseC8YC20_Class::reset(uint8_t device_address)
+{
+    write(device_address, CSE_CS_FILTERING, CS_FILTERING_TOUCH_BASELINE_RESET);
+}
+
 /* ------------------------------------------------------------ */
 /***	void CypressCapsenseC8YC20_Class::getDeviceInformation(
  **          uint8_t device_address, 
@@ -514,7 +520,5 @@ bool CypressCapsenseC8YC20_Class::fetchFirmwareRevision(uint8_t device_address, 
 
     return true;
 }
-
-
 
 CypressCapsenseC8YC20_Class CypressCapsenseC8YC20 = CypressCapsenseC8YC20_Class();

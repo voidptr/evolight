@@ -25,6 +25,10 @@
   Commands based on Cypress Capsense example code, Copyright (c) 2011 Nanwei Gong & Nan Zhao
 */
 
+// Core library for code-sense
+#include "IDEIncludes.h"
+
+
 #ifndef CYPRESS_CAPSENSE_h
 #define CYPRESS_CAPSENSE_h
 
@@ -51,6 +55,19 @@ Spec. # 001-45146 Rev. *D, April 27, 2011 */
 
 #define CSE_CS_READ_RAWM 0x86 // raw counts
 #define CSE_CS_READ_RAWL 0x87
+
+#define CSE_CS_FILTERING 0x56
+
+#define CSE_CS_FINGER_TH_00 0x61
+#define CSE_CS_FINGER_TH_01 0x62
+#define CSE_CS_FINGER_TH_02 0x63
+#define CSE_CS_FINGER_TH_03 0x64
+#define CSE_CS_FINGER_TH_04 0x65
+#define CSE_CS_FINGER_TH_10 0x66
+#define CSE_CS_FINGER_TH_11 0x67
+#define CSE_CS_FINGER_TH_12 0x68
+#define CSE_CS_FINGER_TH_13 0x69
+#define CSE_CS_FINGER_TH_14 0x6A
 
 #define CSE_CS_IDAC_00 0x6B
 #define CSE_CS_IDAC_01 0x6C
@@ -83,6 +100,7 @@ Spec. # 001-45146 Rev. *D, April 27, 2011 */
 #define NORMAL_OPERATION_MODE 0x07
 #define READ_DEVICE_CONFIGURATION 0x05
 #define GET_FIRMWARE_REVISION 0x00
+#define CS_FILTERING_TOUCH_BASELINE_RESET 0b01000000
 
 
 class CypressCapsenseC8YC20_Class
@@ -111,6 +129,8 @@ class CypressCapsenseC8YC20_Class
     bool fetchDeviceInformation(uint8_t device_address, uint8_t *buffer, uint8_t size);
     bool fetchFirmwareRevision(uint8_t device_address, char *buffer);
     bool fetchFirmwareRevision(uint8_t device_address, uint8_t *buffer);
+    void reset(uint8_t device_address);
+
 
 };
 
