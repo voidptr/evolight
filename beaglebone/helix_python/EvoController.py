@@ -1,20 +1,30 @@
-import GA_Tournament
+import GA
 
 ## currently this class is pretty empty, and pointless-seeming
 ## eventually, it will include the interface controls in here, but there aren't any yet.
 
 class EvoController:
-    def __init__(self):
-        self.GA = GA_Tournament.GA_Tournament()
-
-    def init(self):
-        self.GA.init()
+    def __init__(self, debug=False, verbose=False):
+        #self.GA = GA_Tournament.GA_Tournament()
+        self.GA = GA.GA(debug=debug, verbose=verbose)
 
     def next(self):
         self.GA.evolve()
 
     def reset_ga(self):
-        self.GA.reset_ga()        
+        self.GA.reset_ga()
+
+    @property
+    def generation(self):
+        return self.GA.generation
+
+    @property
+    def bestorg(self):
+        return self.GA.bestorg
+
+    @property
+    def allorg(self):
+        return self.GA.allorg
 
     ## TODO
     #void toggle_pauseplay();
@@ -33,5 +43,5 @@ class EvoController:
     #
     # # accessors
     #double per_site_mutation_rate();
-    
+
 
