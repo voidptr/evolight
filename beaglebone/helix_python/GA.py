@@ -65,7 +65,7 @@ class Organism:
         self.genome = [Trait(random=True) for ct in range(genome_length) ]
 
         self.inverseFitness = sys.maxint
-        print self.genome
+        #print self.genome
         self.calculate_fitness()
 
     def __str__(self):
