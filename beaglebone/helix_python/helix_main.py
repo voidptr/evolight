@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 ##############################################
 # EvoLight Open Pixel Control Python Interface
 ##############################################

@@ -61,7 +61,7 @@ class Trait:
 
 
 class Organism:
-    def __init__(self, genome_length=10):
+    def __init__(self, genome_length=30):
         self.genome = [Trait(random=True) for ct in range(genome_length) ]
 
         self.inverseFitness = sys.maxint

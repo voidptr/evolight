@@ -10,7 +10,7 @@ class OPCConnection:
     def init(self):
         self.client = opc.Client(self.server + ":" + self.port)
         print "TODO"
-        if client.can_connect():
+        if self.client.can_connect():
             print "Connected to %s" % self.server + ":" + self.port
         else:
             print "Couldn't connect to %s" % self.server + ":" + self.port
@@ -25,8 +25,8 @@ class OPCConnection:
             channels - array of channel #s
         """
         for (light_string,channel) in zip(lights, channels):
-            print light_string
-            print channel
+            #print light_string
+            #print channel
             self.client.put_pixels(light_string, channel)
 
 
