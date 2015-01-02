@@ -132,7 +132,7 @@ class GA:
 
     def __init__(self,
                  mut_rate=0.01,
-                 population_size=30,
+                 population_size=10,
                  locus_count=30, debug=False, verbose=False):
         self.generation = 0
         GA.mutation_rate = mut_rate ## dunno if this will work
