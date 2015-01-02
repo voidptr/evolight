@@ -70,8 +70,8 @@ def send_wholepop():
             if locus_offset >= locusct:
                 locus_offset = 0
 
-        fracval = 10
-        for frac in range(fracval):
+        fracval = 10.0
+        for frac in range(int(fracval):
             if len(old_lights) == 0:
                 interlights = lights
             else:
@@ -80,8 +80,8 @@ def send_wholepop():
             time.sleep(1/options.fps)
 
 def fade_intermediary(old_lights, lights, fracval):
-    print lights
-    print old_lights
+    #print lights
+    #print old_lights
     interlights = []
     for i in range(len(old_lights)):
         interlights.append(
