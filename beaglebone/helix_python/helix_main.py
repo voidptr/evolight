@@ -60,6 +60,7 @@ def send_wholepop():
     locusct = len(evo.bestorg.genome)
     alllights = [[(locus.r, locus.g, locus.b) for locus in org.genome] for org in evo.allorg]
     lights = []
+    print
     for locus in range(locusct):
         old_lights = lights
         lights = []
@@ -78,6 +79,7 @@ def send_wholepop():
                 interlights = fade_intermediary(old_lights, lights, frac/fracval)
             conn.send_lights([interlights], [0]);
             time.sleep(1/options.fps)
+        print "."
 
 def fade_intermediary(old_lights, lights, fracval):
     #print fracval
