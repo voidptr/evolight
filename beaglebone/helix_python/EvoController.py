@@ -4,7 +4,11 @@ import GA
 ## eventually, it will include the interface controls in here, but there aren't any yet.
 
 class EvoController:
-    def __init__(self, debug=False, verbose=False):
+    def __init__(self, mut_rate=0.01,
+                 population_size=30,
+                 locus_count=30,
+                 debug=False,
+                 verbose=False):
         #self.GA = GA_Tournament.GA_Tournament()
         self.GA = GA.GA(debug=debug, verbose=verbose)
 

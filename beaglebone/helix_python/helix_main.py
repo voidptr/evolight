@@ -18,11 +18,11 @@ parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
                   default=False, help="display verbose evolution information.")
 
 parser.add_option("--length", dest="length", type="int",
-                  help="The length of the organism")
+                  default=30, help="The length of the organism")
 parser.add_option("--popsize", dest="populationsize", type="int",
-                  help="Population size")
+                  default=30, help="Population size")
 parser.add_option("--mutrate", dest="mutationrate", type="float",
-                  help="Mutation rate per site")
+                  default=0.01, help="Mutation rate per site")
 
 parser.add_option("-s", "--server", type="string", default="127.0.0.1",
                   help="The address of the Open Pixel Control server. Default 127.0.0.1")
@@ -39,7 +39,11 @@ conn = OPCConnection(options.server, options.port)
 conn.init()
 
 ## init the evolution controller
-evo = EvoController(debug=options.debug,verbose=options.verbose)
+evo = EvoController(
+  mut_rate=options.mutationrate,
+  population_size=options.populationsize,
+  locus_count=options.length,
+  debug=options.debug,verbose=options.verbose)
 
 def perform_evolution():
     if (evo.generation > 10000):
