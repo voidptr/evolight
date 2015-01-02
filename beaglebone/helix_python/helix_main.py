@@ -67,7 +67,7 @@ def send_wholepop():
         for org_idx in range(len(alllights)):
             lights.append(alllights[org_idx][locus_offset])
             locus_offset += 1
-            if locus_offset > locusct:
+            if locus_offset >= locusct:
                 locus_offset = 0
 
         fracval = 10
