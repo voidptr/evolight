@@ -65,7 +65,7 @@ def send_wholepop():
             lights.append(alllights[org_idx][locus])
 #            lights.append((lc.r, lc.g, lc.b));
         conn.send_lights([lights], [0]);
-        time.sleep(1/options.fps)
+        #time.sleep(1/options.fps)
 
 
 
