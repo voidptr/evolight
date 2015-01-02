@@ -63,7 +63,7 @@ def send_wholepop():
     for locus in range(locusct):
         old_lights = lights
         lights = []
-        locus = locus_offset
+        locus_offset = locus
         for org_idx in range(len(alllights)):
             lights.append(alllights[org_idx][locus_offset])
             locus_offset += 1
