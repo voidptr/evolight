@@ -98,7 +98,7 @@ def fade_intermediary(old_lights, lights, fracval):
 while True:
     perform_evolution()
     send_lights()
-    time.sleep(1/options.fps)
+    #time.sleep(1/options.fps)
 
 
 
