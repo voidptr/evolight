@@ -79,6 +79,8 @@ def send_wholepop():
             conn.send_lights([interlights], [0]);
 
 def fade_intermediary(old_lights, lights, fracval):
+    print lights
+    print old_lights
     interlights = []
     for i in range(len(old_lights)):
         interlights.append(
