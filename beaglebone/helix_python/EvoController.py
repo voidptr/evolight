@@ -10,7 +10,11 @@ class EvoController:
                  debug=False,
                  verbose=False):
         #self.GA = GA_Tournament.GA_Tournament()
-        self.GA = GA.GA(debug=debug, verbose=verbose)
+        self.GA = GA.GA(
+            mut_rate=mut_rate,
+            population_size=population_size,
+            locus_count=locus_count,
+            debug=debug, verbose=verbose)
 
     def next(self):
         self.GA.evolve()
