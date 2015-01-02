@@ -48,12 +48,26 @@ def perform_evolution():
     evo.next()
 
 def send_lights():
-    send_single_org()
+    #send_single_org()
+    send_wholepop()
 
 def send_single_org():
 #    print evo.bestorg.genome
     lights = [(locus.r, locus.g, locus.b) for locus in evo.bestorg.genome]
     conn.send_lights([lights], [0])
+
+def send_wholepop():
+    locusct = len(evo.bestorg.genome)
+    alllights = [[(locus.r, locus.g, locus.b) for locus in org.genome] for org in evo.allorg]
+    for locus in range(locusct):
+        lights = []
+        for org_idx in range(len(alllights)):
+            lc = alllights[org_idx].genome[locus]
+            lights.append((lc.r, lc.g, lc.b));
+        conn.send_lights([lights], [0]);
+        time.sleep(1/options.fps)
+
+
 
 ## activity loop
 while True:
