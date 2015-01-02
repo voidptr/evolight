@@ -59,14 +59,33 @@ def send_single_org():
 def send_wholepop():
     locusct = len(evo.bestorg.genome)
     alllights = [[(locus.r, locus.g, locus.b) for locus in org.genome] for org in evo.allorg]
+    lights = []
     for locus in range(locusct):
+        old_lights = lights
         lights = []
         for org_idx in range(len(alllights)):
-            lights.append(alllights[org_idx][locus])
-#            lights.append((lc.r, lc.g, lc.b));
-        conn.send_lights([lights], [0]);
-        #time.sleep(1/options.fps)
+            lights.append(alllights[org_idx][locus_offset])
+            locus_offset += 1
+            if locus_offset > locusct:
+                locus_offset = 0
 
+        fracval = 10
+        for frac in range(fracval):
+            if len(old_lights) == 0:
+                interlights = lights
+            else:
+                interlights = fade_intermediary(old_lights, lights, frac/fracval)
+            conn.send_lights([interlights], [0]);
+
+def fade_intermediary(old_lights, lights, fracval):
+    interlights = []
+    for i in range(len(old_lights)):
+        interlights.append(
+          (old_lights[i][0] * fracval + lights[i][0] * (1 - fracval)),
+          (old_lights[i][1] * fracval + lights[i][1] * (1 - fracval))
+          (old_lights[i][2] * fracval + lights[i][2] * (1 - fracval))
+          )
+    return interlights
 
 
 ## activity loop
