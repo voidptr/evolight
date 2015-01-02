@@ -71,7 +71,7 @@ def send_wholepop():
                 locus_offset = 0
 
         fracval = 10.0
-        for frac in range(int(fracval):
+        for frac in range(int(fracval)):
             if len(old_lights) == 0:
                 interlights = lights
             else:
