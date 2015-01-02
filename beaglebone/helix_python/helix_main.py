@@ -80,6 +80,7 @@ def send_wholepop():
             time.sleep(1/options.fps)
 
 def fade_intermediary(old_lights, lights, fracval):
+    print fracval
     #print lights
     #print old_lights
     interlights = []
