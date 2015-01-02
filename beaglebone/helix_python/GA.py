@@ -159,8 +159,9 @@ class GA:
         self.population.sort(key=lambda org: org.inverseFitness)
 
     def reset_ga(self):
-        self.population = [ Organism() ] * population_size
+        self.population = [ Organism() for ct in range(len(population_size)) ]
         self.generation = 0
+        self.candidates = []
         ## TODO, worry about the mutation rate reset later
 
     @staticmethod
