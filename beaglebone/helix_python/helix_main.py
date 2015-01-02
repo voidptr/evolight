@@ -62,7 +62,7 @@ def send_wholepop():
     for locus in range(locusct):
         lights = []
         for org_idx in range(len(alllights)):
-            lc = alllights[org_idx].genome[locus]
+            lc = alllights[org_idx][locus]
             lights.append((lc.r, lc.g, lc.b));
         conn.send_lights([lights], [0]);
         time.sleep(1/options.fps)
