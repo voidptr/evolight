@@ -31,6 +31,9 @@ parser.add_option("-p", "--port", type="string", default="7890",
 parser.add_option("--fps", type="int", default=20,
                   help="Frames per second. Default 20.")
 
+parser.add_option("--all", action="store_true", dest="all", default=False,
+                  help="Display the whole population")
+
 ## fetch the args
 (options, args) = parser.parse_args()
 
@@ -52,8 +55,11 @@ def perform_evolution():
     evo.next()
 
 def send_lights():
-    #send_single_org()
-    send_wholepop()
+    if options.all:
+        send_wholepop()
+    else:
+        send_single_org()
+
 
 def send_single_org():
 #    print evo.bestorg.genome
@@ -62,11 +68,11 @@ def send_single_org():
 
 def send_wholepop():
     locusct = len(evo.bestorg.genome)
-    print ">>>>"
+    #print ">>>>"
     alllights = [[(locus.r, locus.g, locus.b) for locus in org.genome] for org in evo.allorg]
     lights = []
-    print "<<<<"
-    print
+    #print "<<<<"
+    #print
     for locus in range(locusct):
         old_lights = lights
         lights = []
@@ -86,7 +92,7 @@ def send_wholepop():
                 interlights = fade_intermediary(old_lights, lights, frac/fracval)
             conn.send_lights([interlights], [0]);
             #time.sleep(.5)
-        print "."
+        #print "."
 
 
 def fade_intermediary(old_lights, lights, fracval):
