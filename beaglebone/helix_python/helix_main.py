@@ -71,15 +71,15 @@ def send_wholepop():
             if locus_offset >= locusct:
                 locus_offset = 0
 
-        #fracval = 100.0
-        fracval = 2
+        fracval = 100.0
+        #fracval = 2
         for frac in range(int(fracval)):
             if len(old_lights) == 0:
                 interlights = lights
             else:
                 interlights = fade_intermediary(old_lights, lights, frac/fracval)
             conn.send_lights([interlights], [0]);
-            time.sleep(.5)
+            #time.sleep(.5)
         print "."
 
 
@@ -102,7 +102,7 @@ def fade_intermediary(old_lights, lights, fracval):
 while True:
     perform_evolution()
     send_lights()
-    time.sleep(1/options.fps)
+    #time.sleep(1/options.fps)
 
 
 
