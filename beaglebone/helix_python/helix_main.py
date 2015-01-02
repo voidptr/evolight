@@ -58,8 +58,10 @@ def send_single_org():
 
 def send_wholepop():
     locusct = len(evo.bestorg.genome)
+    print ">>>>"
     alllights = [[(locus.r, locus.g, locus.b) for locus in org.genome] for org in evo.allorg]
     lights = []
+    print "<<<<"
     print
     for locus in range(locusct):
         old_lights = lights
