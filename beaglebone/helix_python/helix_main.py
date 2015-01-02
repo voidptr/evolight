@@ -48,8 +48,8 @@ def perform_evolution():
     evo.next()
 
 def send_lights():
-    #send_single_org()
-    send_wholepop()
+    send_single_org()
+    #send_wholepop()
 
 def send_single_org():
 #    print evo.bestorg.genome
