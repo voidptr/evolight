@@ -86,9 +86,9 @@ def fade_intermediary(old_lights, lights, fracval):
     interlights = []
     for i in range(len(old_lights)):
         interlights.append(
-          (old_lights[i][0] * fracval + lights[i][0] * (1 - fracval),
-          old_lights[i][1] * fracval + lights[i][1] * (1 - fracval),
-          old_lights[i][2] * fracval + lights[i][2] * (1 - fracval))
+          ((lights[i][0] * fracval) + (old_lights[i][0] * (1 - fracval)),
+          (lights[i][1] * fracval) + (old_lights[i][1] * (1 - fracval)),
+          (lights[i][2] * fracval) + (old_lights[i][2] * (1 - fracval))
           )
     return interlights
 
