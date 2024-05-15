@@ -1,20 +1,31 @@
 import GA
 
 ## currently this class is pretty empty, and pointless-seeming
-## eventually, it will include the interface controls in here, but there aren't any yet.
+## eventually, it will include more than just the GA engine, like other
+## kinds of GA and some more sophisticated management of the operation of the GA
 
 class EvoController:
     def __init__(self, mut_rate=0.01,
                  population_size=30,
                  locus_count=30,
                  debug=False,
-                 verbose=False):
+                 debug_handle=None):
         #self.GA = GA_Tournament.GA_Tournament()
         self.GA = GA.GA(
             mut_rate=mut_rate,
             population_size=population_size,
             locus_count=locus_count,
-            debug=debug, verbose=verbose)
+            debug=debug,
+            debug_handle=debug_handle)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        print ""
+
+    def __str__(self):
+        return str(self.GA)
 
     def next(self):
         self.GA.evolve()

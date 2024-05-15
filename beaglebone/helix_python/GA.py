@@ -3,13 +3,18 @@ import sys
 import copy
 
 class Trait:
-    def __init__(self, r=0, g=0, b=0, random=False):
-        self.r = r
-        self.g = g
-        self.b = b
+    def __init__(self, trait=None, r=0, g=0, b=0, random=False):
+        if trait:
+            self.r = trait.r
+            self.g = trait.g
+            self.b = trait.b
+        else:
+            self.r = r
+            self.g = g
+            self.b = b
 
-        if random:
-            self.randomize()
+            if random:
+                self.randomize()
 
     # not exactly pythonic, but fuck you.
     def __repr__(self):
@@ -61,12 +66,15 @@ class Trait:
 
 
 class Organism:
-    def __init__(self, genome_length=30):
-        self.genome = [Trait(random=True) for ct in range(genome_length) ]
-
-        self.inverseFitness = sys.maxint
-        #print self.genome
-        self.calculate_fitness()
+    def __init__(self, org=None, genome_length=30):
+        self.mutated = False
+        if org != None:
+            self.genome = [Trait(loc) for loc in org.genome] # make a shallow copy
+            self.inverseFitness = org.inverseFitness
+        else:
+            self.genome = [Trait(random=True) for ct in range(genome_length) ]
+            self.inverseFitness = sys.maxint
+            self.calculate_fitness()
 
     def __str__(self):
         return str(self.inverseFitness) + ", " + str(self.genome)
@@ -90,8 +98,13 @@ class Organism:
         self.inverseFitness = (sumDiff * 4) + invSumColor
 
     def mutate(self):
-        for trait in self.genome:
-            trait.mutate()
+        # don't mutate an organism twice in one generation
+        # todo - evaluate if there's a better way. Mutate after
+        if not self.mutated:
+            self.mutated = True
+            for trait in self.genome:
+                trait.mutate()
+
 
     @staticmethod
     def recombine(org1, org2):
@@ -108,14 +121,15 @@ class Organism:
         #print org1
         #print org2
 
-        neworg = copy.deepcopy(org1)
+        neworg = Organism(org=org1)
+
         recomb = False
         for pos in range(len(org1.genome)):
             if pos in points:
                 recomb = not recomb
 
             if recomb:
-                neworg.genome[pos] = copy.deepcopy(org2.genome[pos])
+                neworg.genome[pos] = Trait(org2.genome[pos])
 
         neworg.calculate_fitness()
 
@@ -133,15 +147,19 @@ class GA:
     def __init__(self,
                  mut_rate=0.01,
                  population_size=30,
-                 locus_count=30, debug=False, verbose=False):
+                 locus_count=30, debug=False,
+                 debug_handle=None):
         self.generation = 0
         GA.mutation_rate = mut_rate ## dunno if this will work
 
-        self.population = [ Organism() for ct in range(population_size) ]
+        self.locus_count = locus_count
+
+        self.population = [ Organism(genome_length=locus_count) for ct in range(population_size) ]
         self.candidates = [] ## just putting this out there
 
         self.debug = debug
-        self.verbose = verbose
+
+        self.debug_handle = debug_handle
 
     def __str__(self):
         return ("Gen: %d, BestFit: %d" % (self.generation, self.population[0].inverseFitness))
@@ -152,6 +170,7 @@ class GA:
 
     @property
     def allorg(self):
+#        self.debug_handle.log(self.population)
         return self.population
 
 
@@ -159,7 +178,7 @@ class GA:
         self.population.sort(key=lambda org: org.inverseFitness)
 
     def reset_ga(self):
-        self.population = [ Organism() for ct in range(len(population_size)) ]
+        self.population = [ Organism(genome_length=self.locus_count) for ct in range(len(self.population)) ]
         self.generation = 0
         self.candidates = []
         ## TODO, worry about the mutation rate reset later
@@ -216,9 +235,6 @@ class GA:
                 self.candidates[random.randint(0, len(self.candidates) - 1)])
 
     def evolve(self):
-
-        if self.verbose:
-            print self
 
         if self.debug:
             print "Debugging - %d" % self.generation
