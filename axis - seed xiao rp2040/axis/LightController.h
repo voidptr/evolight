@@ -5,11 +5,14 @@
 #include <Arduino_DebugUtils.h>
 
 #ifndef DATA_PIN
-#define DATA_PIN 29 // strip
+//#define DATA_PIN 18 // esp32 c6
+#define DATA_PIN 29 // waveshare strip
+//#define DATA_PIN 16 // ?? waveshare built-in?
 #endif
 
 #ifndef NUM_LEDS
-#define NUM_LEDS 32 
+#define NUM_LEDS 50
+
 #endif
 
 #ifndef __LIGHT_CONFIGURATION_DEFINES__
@@ -19,17 +22,14 @@
 #define __LIGHT_PINS__ {0}//, 4, 6}
 #define __LIGHTS_AT_PINS__ {NUM_LEDS}//, 17, 8}
 #define __TOTAL_LIGHTS__ NUM_LEDS
-#define __BRIGHTNESS_SCALE__ 0.5
+#define __BRIGHTNESS_SCALE__ 1.0
 #endif
 
 class GridLightControl 
 {
 private:
-    //WS2812_Bitbang FastSPI_LED;
-    //struct CRGB { unsigned char g; unsigned char r; unsigned char b; }; // for whatever reason, the order is wrong here.
-    //struct CRGB * leds;
-
     CRGB leds[NUM_LEDS];
+    float BrightnessScale;
 
     enum 
     {
@@ -44,59 +44,47 @@ public:
     GridLightControl() 
     {
         totallightcount = __TOTAL_LIGHTS__;
-//        int lightsatpins[__NUM_STRANDS__] = __LIGHTS_AT_PINS__;
-//        for (int i = 0; i < __NUM_STRANDS__; i++)
-//        {
-//            totallightcount += lightsatpins[i];
-//        }
+        BrightnessScale = __BRIGHTNESS_SCALE__;
     }
 
     void init() 
     {
       FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
-
-        // int pins[__NUM_STRANDS__] = __LIGHT_PINS__;
-        // int counts[__NUM_STRANDS__] = __LIGHTS_AT_PINS__;
-
-        // FastSPI_LED.setLeds(__TOTAL_LIGHTS__);
-        // FastSPI_LED.setChipset(CFastSPI_LED::SPI_TM1809);
-        // FastSPI_LED.setPinCount(__NUM_STRANDS__);
-
-        // for (int i = 0; i < __NUM_STRANDS__; i++)
-        // {
-        //     FastSPI_LED.setPin(i, pins[i], counts[i]);  
-
-        // }
-        // FastSPI_LED.init();
-        // FastSPI_LED.start();
-        // leds = (struct CRGB*)FastSPI_LED.getRGBData();
-
-        //FastSPI_LED.begin();
-        //leds = (struct CRGB*)FastSPI_LED.getRGBData(); // grab out the data thing
-
-      //Debug::debugln("Light Init Done");
     }
     
+    void brighten()
+    {
+      //BrightnessScale = BrightnessScale + 0.1 >= 1 ? 1 : BrightnessScale + 0.1;
+
+      if (BrightnessScale > 0.09) {
+        DEBUG_INFO("PUSH WHOLE STEP, %f to", BrightnessScale);
+        BrightnessScale = BrightnessScale + 0.1 >= 1 ? 1 : BrightnessScale + 0.1;
+      } else {
+        DEBUG_INFO("PUSH 1/10th STEP, %f to", BrightnessScale);
+        BrightnessScale = BrightnessScale + 0.01 >= 1 ? 1 : BrightnessScale + 0.01;
+      }
+      DEBUG_INFO("%f", BrightnessScale);
+    }
+
+    void dim()
+    {
+      if (BrightnessScale <= 0.1)
+        BrightnessScale = BrightnessScale - 0.01 <= 0 ? 0 : BrightnessScale - 0.01;
+      else
+        BrightnessScale = BrightnessScale - 0.1 <= 0 ? 0 : BrightnessScale - 0.1;
+      DEBUG_INFO("%f", BrightnessScale);
+    }
+
     bool set_light(unsigned int idx, byte r, byte g, byte b) 
     {
         if (idx > totallightcount)
         {
             return false;
         }
-        //leds[idx].setRGB(r * __BRIGHTNESS_SCALE__, g * __BRIGHTNESS_SCALE__, b * __BRIGHTNESS_SCALE__)
-        leds[idx].r = r * __BRIGHTNESS_SCALE__;
-        leds[idx].g = g * __BRIGHTNESS_SCALE__;
-        leds[idx].b = b * __BRIGHTNESS_SCALE__;
-        /*
-        if (leds[idx].r > 62 || leds[idx].g > 62 || leds[idx].b > 62 )
-        {
-            Debug::debug(leds[idx].r);
-            Debug::debug("-");
-            Debug::debug(leds[idx].g);
-            Debug::debug("-");
-            Debug::debugln(leds[idx].b);
-            
-        } */
+        
+        leds[idx].r = r * BrightnessScale;
+        leds[idx].g = g * BrightnessScale;
+        leds[idx].b = b * BrightnessScale;
         
         return true;
     }
@@ -108,9 +96,9 @@ public:
             return false;
         }
 
-        uint8_t rscaled = r * __BRIGHTNESS_SCALE__;
-        uint8_t gscaled = g * __BRIGHTNESS_SCALE__;
-        uint8_t bscaled = b * __BRIGHTNESS_SCALE__;
+        uint8_t rscaled = r * BrightnessScale;
+        uint8_t gscaled = g * BrightnessScale;
+        uint8_t bscaled = b * BrightnessScale;
         
         uint8_t rold = leds[idx].r;
         uint8_t gold = leds[idx].g;
@@ -133,17 +121,13 @@ public:
             return false;
         }
         
-        uint8_t rscaled = r * __BRIGHTNESS_SCALE__;
-        uint8_t gscaled = g * __BRIGHTNESS_SCALE__;
-        uint8_t bscaled = b * __BRIGHTNESS_SCALE__;
+        uint8_t rscaled = r * BrightnessScale;
+        uint8_t gscaled = g * BrightnessScale;
+        uint8_t bscaled = b * BrightnessScale;
         
-        uint8_t rold_scaled = rold * __BRIGHTNESS_SCALE__;
-        uint8_t gold_scaled = gold * __BRIGHTNESS_SCALE__;
-        uint8_t bold_scaled = bold * __BRIGHTNESS_SCALE__;
-        
-        //        uint8_t rold = leds[idx].r;
-        //        uint8_t gold = leds[idx].g;
-        //        uint8_t bold = leds[idx].b;
+        uint8_t rold_scaled = rold * BrightnessScale;
+        uint8_t gold_scaled = gold * BrightnessScale;
+        uint8_t bold_scaled = bold * BrightnessScale;
         
         leds[idx].r = (rscaled * frac) + (rold_scaled * (1 - frac));
         leds[idx].g = (gscaled * frac) + (gold_scaled * (1 - frac));

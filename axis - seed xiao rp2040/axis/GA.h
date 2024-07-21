@@ -58,14 +58,20 @@ public:
             
             void randomize()
             {
-                r = get_random();
-                g = get_random();
-                b = get_random();
+                r = get_random(red_bias);
+                g = get_random(green_bias);
+                b = get_random(blue_bias);
             }
             
-            uint8_t get_random()
+            uint8_t get_random(double bias)
             {
-                return (uint8_t)(random(0, _MAX_TRAIT_VALUE_ + 1));
+                long val = random(0, _MAX_TRAIT_VALUE_ + 1);
+                val = val * bias;
+
+                if (val > _MAX_TRAIT_VALUE_)
+                  return (uint8_t)_MAX_TRAIT_VALUE_;
+                else
+                  return (uint8_t)val;
             }
             
             int calculate_colorfulness()
@@ -83,11 +89,11 @@ public:
             void mutate()
             {
                 if (is_mut())
-                    r = get_random();
+                    r = get_random(red_bias);
                 if (is_mut())
-                    g = get_random();
+                    g = get_random(green_bias);
                 if (is_mut())
-                    b = get_random();
+                    b = get_random(blue_bias);
             }
             
             void clone(Trait aTrait)
@@ -127,7 +133,11 @@ public:
         
 public:
     static double per_site_mutation_rate;
-    double current_mutation_rate;
+    static double current_mutation_rate;
+
+    static double red_bias;
+    static double green_bias;
+    static double blue_bias;
     
     int generation;
     
@@ -149,6 +159,11 @@ public:
     void randomize_population(int popIndex);
     static bool is_mut();
     void evolve();
+
+    void increase_mutation_rate();
+    void decrease_mutation_rate();
+
+    void increase_bias(bool r, bool g, bool b);
     
     virtual void select_candidates(int popIndex);
     virtual void mutate_candidates(int popIndex);

@@ -24,7 +24,7 @@ GA::GA()
         startIndex += PopulationSizes[i];
     }
     
-    current_mutation_rate = per_site_mutation_rate;
+    //current_mutation_rate = per_site_mutation_rate;
     
     use_heredity = true;
     use_selection = true;
@@ -32,16 +32,52 @@ GA::GA()
 }
 
 double GA::per_site_mutation_rate = __DEFAULT_MUTATION_RATE__;
+double GA::red_bias = 1;
+double GA::green_bias = 1;
+double GA::blue_bias = 1;
 
+
+void GA::increase_mutation_rate()
+{
+  per_site_mutation_rate = per_site_mutation_rate >= 1 ? 1 : per_site_mutation_rate + 0.01;
+  DEBUG_INFO("Mutation Rate: %f", per_site_mutation_rate);
+}
+
+void GA::decrease_mutation_rate()
+{
+  per_site_mutation_rate = per_site_mutation_rate <= 0 ? 0 : per_site_mutation_rate - 0.01;
+  DEBUG_INFO("Mutation Rate: %f", per_site_mutation_rate);
+
+}
+
+void GA::increase_bias(bool r, bool g, bool b)
+{
+  if (r)
+    red_bias *= 1.1;
+  if (g)
+    green_bias *= 1.1;
+  if (b)
+    blue_bias *= 1.1;
+
+    DEBUG_INFO("Bias: r %f, g %f, b %f", red_bias, green_bias, blue_bias);
+}
 void GA::init()
 {
     // init the random seed
     randomSeed(analogRead(0));
     
-    //debug_all();
     init_random_population();
-    //debug_all();
-    //delay(2000);
+}
+
+void GA::reset_ga()
+{
+    red_bias = 1;
+    green_bias = 1;
+    blue_bias = 1;
+
+    per_site_mutation_rate = __DEFAULT_MUTATION_RATE__;
+
+    init();
 }
 
 void GA::evolve()
@@ -50,27 +86,11 @@ void GA::evolve()
     
     for (int i = 0; i < __POPULATIONS__; i++)
     {
-        //Debug::debugln("EVOLVE");
-        //Debug::debugln("INITIAL");
-        //debug_population(i);
         select_candidates(i);
-        //Debug::debugln("SELECT");
-        //debug_population(i);
-        //debug_candidates();
         mutate_candidates(i);
-        //Debug::debugln("MUTATE");
-        //debug_population(i);
-        //debug_candidates();
         reproduce_candidates(i);
-        //Debug::debugln("REPRODUCE");
-        //debug_population(i);
         sort_population(i);
-        //Debug::debugln("SORT");
-        //debug_population(i);
-        //debug_population__top_organism(i);
     }
-    //debug_bestfitness();
-    //Debug::debugln(generation);
     generation++;
 }
 
@@ -134,46 +154,6 @@ void GA::debug_population(int popIndex)
     }    
     
 }
-
-void GA::debug_population__top_organism(int popIndex)
-{
-/*
-    Debug::debug("Pop ");
-    Debug::debug(popIndex);
-    Debug::debug(" - Best Fitness: ");
-    //Debug::debugln( Organisms[Populations[popIndex].StartIndex].inverse_fitness );
-    Organisms[Populations[popIndex].StartIndex].debug();
-    */
-    /*
-     for (int i = 0; i < Populations[popIndex].Count; i++)
-     {
-     Organisms[Populations[popIndex].StartIndex + i].debug();
-     }
-     */
-    //Debug::debugln(" ");
-}
-
-void GA::debug_bestfitness()
-{
-/*
-    int bestfit = 1000000;
-    int bestpop = 0;
-    for (int i = 0; i < __POPULATIONS__; i++)
-    {
-        if (Organisms[Populations[i].StartIndex].inverse_fitness < bestfit)
-        {
-            bestfit = Organisms[Populations[i].StartIndex].inverse_fitness;
-            bestpop = i;
-        }
-    }
-    
-    Debug::debug("Pop ");
-    Debug::debug(bestpop);
-    Debug::debug(" - Best Fitness: ");
-    Debug::debugln(bestfit);
-    */
-}
-
 
 void GA::init_random_population()
 {
@@ -277,52 +257,29 @@ void GA::select_candidates__hybrid__evoluminator(int popIndex)
     // 50% of candidates are drawn from the top 25%
     l = 0;
     r = popsize * .25;
-//    Debug::debug("Top 25% -> 50% ");
-//    Debug::debug(l);
-//    Debug::debug(" ");
-//    Debug::debugln(r);
     for (int i = 0; i < (popsize * .5); i++) {
         random_index = random(l, r + 1) + offset;
-//        Debug::debug(random_index);
-//        Debug::debug(" --> ");
-//        Debug::debugln(target);
         Candidates[target++].clone(Organisms[random_index]);
-    }
-    
+    }    
     
     // 30% of candidates are drawn from the middle 50%
     l = popsize * .25;
     r = popsize * .75;
-//    Debug::debug("Middle 50% -> 30% ");
-//    Debug::debug(l);
-//    Debug::debug(" ");
-//    Debug::debugln(r);
     for (int i = 0; i < (popsize * .3); i++) {
         random_index = random(l, r + 1) + offset;
-//        Debug::debug(random_index);
-//        Debug::debug(" --> ");
-//        Debug::debugln(target);
         Candidates[target++].clone(Organisms[random_index]);
     }
     
     // 20% of candidates are drawn from the bottom 25%
     l = popsize * .75;
     r = popsize - 1;
-//    Debug::debug("Bottom 25% -> 20% ");
-//    Debug::debug(l);
-//    Debug::debug(" ");
-//    Debug::debugln(r);
     for (int i = 0; i < (popsize * .2); i++) {
         if (target >= popsize) // avoid an overrun
             break;
         
         random_index = random(l, r + 1) + offset;
-//        Debug::debug(random_index);
-//        Debug::debug(" --> ");
-//        Debug::debugln(target);
         Candidates[target++].clone(Organisms[random_index]);
     }
-//    delay(1000);
 }
 
 void GA::select_candidates__hybrid(int popIndex)
