@@ -12,7 +12,10 @@
 #define FADE_FRACTION 100
 #define __BRIGHTNESS_SCALE__ 1.0
 
-#define LED_PIN   D10
+#define LED_PIN   D10 // ESP32C6
+//#define LED_PIN   10 // SAMD21
+//#define LED_PIN 29 // Waveshare?
+//#define LED_PIN 16 // Waveshare Matrix
 #define LED_COUNT 50
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -23,39 +26,40 @@ float BrightnessScale = __BRIGHTNESS_SCALE__;
 
 void setup()
 {
-  Serial.begin(115200);
-  Debug.timestampOn();
-  Debug.setDebugLevel(DBG_INFO);
+    Serial.begin(115200);
+    Debug.timestampOn();
+    Debug.setDebugLevel(DBG_INFO);
 
-    // Just to know which program is running on my Arduino
-  //DEBUG_INFO("START %s from %s\r\nUsing library version", __FILE__, __DATE__, VERSION_IRREMOTE);
-  
-  Engine.init();
-  
-  strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-  strip.show();            // Turn OFF all pixels ASAP
-  strip.setBrightness(50);
+    DEBUG_INFO("STARTING INIT");
+        // Just to know which program is running on my Arduino
+    //DEBUG_INFO("START %s from %s\r\nUsing library version", __FILE__, __DATE__, VERSION_IRREMOTE);
+
+    Engine.init();
+
+    strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
+    strip.show();            // Turn OFF all pixels ASAP
+    strip.setBrightness(100);
 }
 
 void loop()
 {
-  // evo
-  DEBUG_INFO("i = %d", i);
-  i++;
+    // evo
+    DEBUG_INFO("i = %d", i);
+    i++;
 
-  Engine.evolve();
-  output_lights();
+    Engine.evolve();
+    output_lights();
 
 }
 
 void evolve_steps(int steps)
 {
-  DEBUG_INFO("Evolving %d steps", steps);
-  for (int j = 0; j < steps; j++)
-  {
-    Engine.evolve();
-  }
-  i += steps;
+    DEBUG_INFO("Evolving %d steps", steps);
+    for (int j = 0; j < steps; j++)
+    {
+        Engine.evolve();
+    }
+    i += steps;
 }
 
 // void increase_fade()
