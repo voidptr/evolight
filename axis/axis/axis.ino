@@ -12,8 +12,10 @@
 #define FADE_FRACTION 100
 #define __BRIGHTNESS_SCALE__ 1.0
 
-#define LED_PIN   D10 // ESP32C6
-//#define LED_PIN   10 // SAMD21
+#define LED_PIN 13 // ESP32S3 Supermini external
+//#define LED_PIN 48 // ESP32S3 Supermini built-in
+//#define LED_PIN D10 // ESP32C6
+//#define LED_PIN 10 // SAMD21
 //#define LED_PIN 29 // Waveshare?
 //#define LED_PIN 16 // Waveshare Matrix
 #define LED_COUNT 50
@@ -24,11 +26,59 @@ int i = 0;
 int fade_fraction = FADE_FRACTION;
 float BrightnessScale = __BRIGHTNESS_SCALE__;
 
+
+
+int threshold = 40;
+bool touchActive = false;
+bool lastTouchActive = false;
+bool testingLower = true;
+
+void gotTouchEvent() {
+  if (lastTouchActive != testingLower) {
+    touchActive = !touchActive;
+    testingLower = !testingLower;
+    // Touch ISR will be inverted: Lower <--> Higher than the Threshold after ISR event is noticed
+    //touchInterruptSetThresholdDirection(testingLower);
+  }
+}
+
+void CheckCommands() {
+    if (lastTouchActive != touchActive) {
+        lastTouchActive = touchActive;
+        if (touchActive) {
+            Serial.println("  ---- Touch was Pressed");
+        } else {
+            Serial.println("  ---- Touch was Released");
+        }
+        Serial.printf("T2 pin2 = %d \n", touchRead(T8));
+    }
+    
+}
+
+
 void setup()
 {
+    // TO ENABLE SERIAL OUTPUT
+    // set up IDE with
+    // (a) Board ESP32S3 Dev Module
+    // (b) "USB CDC on boot : enabled"
+    // (c) JTAG adapter disabled
+
     Serial.begin(115200);
     Debug.timestampOn();
     Debug.setDebugLevel(DBG_INFO);
+ 
+    while ( !Serial && millis() < 10000 ) {
+        delay(500) ;
+    }
+
+    Serial.printf("Begin\n") ;
+
+    Serial.println("ESP32 Touch Interrupt Test");
+    touchAttachInterrupt(T8, gotTouchEvent, threshold);
+
+    // Touch ISR will be activated when touchRead is lower than the Threshold
+    //touchInterruptSetThresholdDirection(testingLower);
 
     DEBUG_INFO("STARTING INIT");
         // Just to know which program is running on my Arduino
@@ -38,13 +88,16 @@ void setup()
 
     strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
     strip.show();            // Turn OFF all pixels ASAP
-    strip.setBrightness(100);
+    strip.setBrightness(255 * BrightnessScale);
 }
 
 void loop()
 {
-    // evo
-    DEBUG_INFO("i = %d", i);
+
+
+    Serial.printf("Generation i = %d\n", i) ;
+    // // evo
+    // DEBUG_INFO("i = %d", i);
     i++;
 
     Engine.evolve();
@@ -89,7 +142,7 @@ void output_lights()
             double fracval = (double)frac/fade_fraction;
             for (int org = 0; org < __TOTAL_ORGANISMS__; org++)
             {
-                //CheckCommands();
+                CheckCommands();
 
                 DEBUG_DEBUG("org %d of %d", org, __TOTAL_ORGANISMS__);
                 int traitprev = ((seq + org) % __LOCUS_COUNT__);
