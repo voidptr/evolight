@@ -324,7 +324,7 @@ void GA::Organism::calculate_fitness()
     {
         sumDiff += Trait::calculate_difference(Traits[i], Traits[i+1]);
     }
-    sumDiff += Trait::calculate_difference(Traits[0], Traits[__LOCUS_COUNT__ - 1]);
+    sumDiff += Trait::calculate_difference(Traits[0], Traits[__LOCUS_COUNT__ - 1]); // grab the loop-around difference
     
     // sum of the colorfulness across the genome
     int sumColor = 0;

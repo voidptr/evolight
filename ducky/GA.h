@@ -81,6 +81,7 @@ public:
             
             static int calculate_difference(Trait aTraitA, Trait aTraitB)
             {
+                // TODO, make the difference logarithmic? as an option
                 return abs(aTraitA.r - aTraitB.r) +
                 abs(aTraitA.g - aTraitB.g) +
                 abs(aTraitA.b - aTraitB.b);

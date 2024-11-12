@@ -19,33 +19,46 @@
 #include <BLEScan.h>
 #include <BLEAdvertisedDevice.h>
 
-#define SERVICE_UUID        "dafffac4-1fb5-459e-8fcc-c5c9c3300004"
-#define CHARACTERISTIC_UUID "deco0004-36e1-4688-b7f5-ea07361b26a8"
-#define DEVICE_NAME         "DuckyString0x04"
+#define SERVICE_UUID        "dafffaca-1fb5-459e-8fcc-c5c9c3300004"
+#define CHARACTERISTIC_UUID "deco000a-36e1-4688-b7f5-ea07361b26a8"
+#define DEVICE_NAME         "SpeckleDuck0x0A"
 
 #define FADE_FRACTION 100
 #define __BRIGHTNESS_SCALE__ 1.0
 #define __BRIGHTNESS_KEY__ "brightness"
 
+// ESP32C3 SuperMini
+#define LED_PIN 4 // ESP32C3 Supermini external (4th pin down to right of USB controller)
+#define LED_PIN_INDICATOR 8 // ESP32C3 Supermini internal RGBLED
+#define INDICATOR_RGB false // ESP32C3 Supermini internal RGBLED is not RGB
 
-  // for Adafruit QT Py ESP32-S3 - NEOPIXEL_POWER == 38 and NEOPIXEL == 39
+// Seeed Studio XIAO ESP32-C6
+// #define LED_PIN D10 // Seeed Studio XIAO ESP32-C6 external (4th pin down to right of USB controller)
+// #define LED_PIN_INDICATOR LED_BUILTIN // Seeed Studio XIAO ESP32-C6 internal LED
+// #define INDICATOR_RGB false // Seeed Studio XIAO ESP32-C6 internal LED is not RGB
 
+
+// ESP32S3 SuperMini
 //#define LED_PIN 13 // ESP32S3 Supermini external (4th pin down to right of USB controller)
 //#define LED_PIN 48 // ESP32S3 Supermini internal RGBLED
-//#define LED_PIN_INDICATOR PIN_NEOPIXEL // ESP32S3 Supermini internal RGBLED
+//#define LED_PIN_INDICATOR 48 //PIN_NEOPIXEL // ESP32S3 Supermini internal RGBLED
+//#define INDICATOR_RGB false // ESP32S3 Supermini internal RGBLED is RGB
+
+// ESP32C6 SuperMini
 //#define LED_PIN 8 // ESP32C6 Supermini internal RGBLED
 //#define LED_PIN 20 // ESP32C6 Supermini external (4th pin down to right of USB controller)
+
+// Waveshare ESP32-S3-Tiny
 //#define LED_PIN 1 // Waveshare ESP32-S3-Tiny external (4th pin down the power and ground pin side)
 //#define LED_PIN 38 // Waveshare ESP32-S3-Tiny internal RGBLED
+
+// Adafruit QT Py ESP32-S3
+// for Adafruit QT Py ESP32-S3 - NEOPIXEL_POWER == 38 and NEOPIXEL == 39
 //#define LED_PIN 39 // Adafruit QT Py ESP32-S3 internal RGBLED
-#define LED_PIN D10 // Seeed Studio XIAO ESP32-C6 external (4th pin down to right of USB controller)
-#define LED_PIN_INDICATOR LED_BUILTIN // Seeed Studio XIAO ESP32-C6 internal LED
-#define INDICATOR_RGB false // Seeed Studio XIAO ESP32-C6 internal LED is not RGB
 
-#define LED_COUNT 50
-Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ400);
+#define LED_COUNT 10
+Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel indicatorstrip(1, LED_PIN_INDICATOR, NEO_GRB + NEO_KHZ800);
-
 
 CircularBuffer<int, 100> CommandsBuff;
 
@@ -119,6 +132,18 @@ class MyCallbacks: public BLECharacteristicCallbacks {
       }
     }
 };
+
+void ReadBatteryVoltage()
+{
+    uint32_t Vbatt = 0;
+    for(int i = 0; i < 16; i++) {
+        Vbatt += analogReadMilliVolts(A0); // Read and accumulate ADC voltage
+    }
+    float Vbattf = 2 * Vbatt / 16 / 1000.0;     // Adjust for 1:2 divider and convert to volts
+    Serial.print("bat: ");
+    Serial.println(Vbattf, 3);                  // Output voltage to 3 decimal places
+    delay(3);
+}
 
 void CheckCommands()
 {
@@ -355,7 +380,7 @@ void FlashIndicator(int num_flashes)
             indicatorstrip.fill(0xFF0000);
             indicatorstrip.show();
         } else {
-            digitalWrite(LED_PIN_INDICATOR, LOW);
+            digitalWrite(LED_PIN_INDICATOR, HIGH);
         }
         delay(200); // wait quarter second
 
@@ -364,7 +389,7 @@ void FlashIndicator(int num_flashes)
             indicatorstrip.fill(0x000000);
             indicatorstrip.show();
         } else {
-            digitalWrite(LED_PIN_INDICATOR, HIGH);
+            digitalWrite(LED_PIN_INDICATOR, LOW);
         }
         delay(200); // wait quarter second
         
@@ -446,6 +471,8 @@ void loop() {
 
     Engine.evolve();
     output_lights();
+
+    //ReadBatteryVoltage(); // only if 200kohm resistor is hooked in (2:1 configuration (?) ) between battery in and A0.
 
     //delay(1000);
 }
