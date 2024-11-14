@@ -27,20 +27,39 @@
 #define __BRIGHTNESS_SCALE__ 1.0
 #define __BRIGHTNESS_KEY__ "brightness"
 
-
-  // for Adafruit QT Py ESP32-S3 - NEOPIXEL_POWER == 38 and NEOPIXEL == 39
-
-//#define LED_PIN 13 // ESP32S3 Supermini external (4th pin down to right of USB controller)
-//#define LED_PIN 48 // ESP32S3 Supermini internal RGBLED
-//#define LED_PIN_INDICATOR PIN_NEOPIXEL // ESP32S3 Supermini internal RGBLED
-//#define LED_PIN 8 // ESP32C6 Supermini internal RGBLED
-//#define LED_PIN 20 // ESP32C6 Supermini external (4th pin down to right of USB controller)
-//#define LED_PIN 1 // Waveshare ESP32-S3-Tiny external (4th pin down the power and ground pin side)
-//#define LED_PIN 38 // Waveshare ESP32-S3-Tiny internal RGBLED
-//#define LED_PIN 39 // Adafruit QT Py ESP32-S3 internal RGBLED
+// Seeed Studio XIAO ESP32-C6
 #define LED_PIN D10 // Seeed Studio XIAO ESP32-C6 external (4th pin down to right of USB controller)
 #define LED_PIN_INDICATOR LED_BUILTIN // Seeed Studio XIAO ESP32-C6 internal LED
 #define INDICATOR_RGB false // Seeed Studio XIAO ESP32-C6 internal LED is not RGB
+
+// Waveshare ESP32-S3-Tiny
+//#define LED_PIN 1 // Waveshare ESP32-S3-Tiny external (4th pin down the power and ground pin side)
+//#define LED_PIN 38 // Waveshare ESP32-S3-Tiny internal RGBLED
+//#define LED_PIN_INDICATOR 38 // Waveshare ESP32-S3-Tiny  internal RGBLED
+//#define INDICATOR_RGB false // ESP32S3 Supermini internal RGBLED is RGB
+
+// ESP32C3 SuperMini (Generic)
+//#define LED_PIN 4 // ESP32C3 Supermini external (4th pin down to right of USB controller)
+//#define LED_PIN_INDICATOR 8 // ESP32C3 Supermini internal RGBLED
+//#define INDICATOR_RGB false // ESP32C3 Supermini internal RGBLED is not RGB
+
+// ESP32S3 SuperMini (Generic)
+//#define LED_PIN 13 // ESP32S3 Supermini external (4th pin down to right of USB controller)
+//#define LED_PIN 48 // ESP32S3 Supermini internal RGBLED
+//#define LED_PIN_INDICATOR 48 //PIN_NEOPIXEL // ESP32S3 Supermini internal RGBLED
+//#define INDICATOR_RGB false // ESP32S3 Supermini internal RGBLED is RGB
+
+// ESP32C6 SuperMini (Generic)
+//#define LED_PIN 20 // ESP32C6 Supermini external (4th pin down to right of USB controller)
+//#define LED_PIN 8 // ESP32C6 Supermini internal RGBLED
+//#define LED_PIN_INDICATOR 8 //PIN_NEOPIXEL // ESP32SC6 Supermini internal RGBLED
+//#define INDICATOR_RGB false // ESP32C6 Supermini internal RGBLED is RGB
+
+// Adafruit QT Py ESP32-S3
+// for Adafruit QT Py ESP32-S3 - NEOPIXEL_POWER == 38 and NEOPIXEL == 39
+//#define LED_PIN 39 // Adafruit QT Py ESP32-S3 internal RGBLED
+//#define LED_PIN_INDICATOR 39 // Adafruit QT Py ESP32-S3 internal RGBLED
+//#define INDICATOR_RGB false // Adafruit QT Py ESP32-S3 internal RGBLED is RGB
 
 #define LED_COUNT 50
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ400);
