@@ -19,35 +19,42 @@
 #include <BLEScan.h>
 #include <BLEAdvertisedDevice.h>
 
-#define SERVICE_UUID        "dafffacb-1fb5-459e-8fcc-c5c9c3300004"
-#define CHARACTERISTIC_UUID "deco000b-36e1-4688-b7f5-ea07361b26a8"
-#define DEVICE_NAME         "BatterySaltLamp^0x0B^"
+#define SERVICE_UUID        "daffface-1fb5-459e-8fcc-c5c9c3300004"
+#define CHARACTERISTIC_UUID "deco000e-36e1-4688-b7f5-ea07361b26a8"
+#define DEVICE_NAME         "TesterSuperminiS3-0x11"
 
 #define FADE_FRACTION 100
-#define __BRIGHTNESS_SCALE__ 1.0
+#define __BRIGHTNESS_SCALE__ 1.0 // default
 #define __BRIGHTNESS_KEY__ "brightness"
 
+// // ESP32S3 SuperMini (Generic)
+// #define LED_PIN 13 // ESP32S3 Supermini external (4th pin down to right of USB controller)
+// //#define LED_PIN 48 // ESP32S3 Supermini internal RGBLED
+// #define LED_PIN_INDICATOR 48 //PIN_NEOPIXEL // ESP32S3 Supermini internal RGBLED
+// #define INDICATOR_RGB false // ESP32S3 Supermini internal RGBLED is RGB
+
+// Seeed Studio XIAO ESP32-S3
+//#define LED_PIN D10 // Seeed Studio XIAO ESP32-S3 external (4th pin down to right of USB controller)
+//#define LED_PIN_INDICATOR LED_BUILTIN // Seeed Studio XIAO ESP32-S3 internal LED
+//#define INDICATOR_RGB false // Seeed Studio XIAO ESP32-C6 internal LED is not RGB
+
 // Seeed Studio XIAO ESP32-C6
-#define LED_PIN D10 // Seeed Studio XIAO ESP32-C6 external (4th pin down to right of USB controller)
-#define LED_PIN_INDICATOR LED_BUILTIN // Seeed Studio XIAO ESP32-C6 internal LED
-#define INDICATOR_RGB false // Seeed Studio XIAO ESP32-C6 internal LED is not RGB
+//#define LED_PIN D10 // Seeed Studio XIAO ESP32-C6 external (4th pin down to right of USB controller)
+//#define LED_PIN_INDICATOR LED_BUILTIN // Seeed Studio XIAO ESP32-C6 internal LED
+//#define INDICATOR_RGB false // Seeed Studio XIAO ESP32-C6 internal LED is not RGB
 
 // Waveshare ESP32-S3-Tiny
-//#define LED_PIN 1 // Waveshare ESP32-S3-Tiny external (4th pin down the power and ground pin side)
-//#define LED_PIN 38 // Waveshare ESP32-S3-Tiny internal RGBLED
-//#define LED_PIN_INDICATOR 38 // Waveshare ESP32-S3-Tiny  internal RGBLED
-//#define INDICATOR_RGB false // ESP32S3 Supermini internal RGBLED is RGB
+#define LED_PIN 1 // Waveshare ESP32-S3-Tiny external (4th pin down the power and ground pin side)
+#define LED_PIN 38 // Waveshare ESP32-S3-Tiny internal RGBLED
+#define LED_PIN_INDICATOR 38 // Waveshare ESP32-S3-Tiny  internal RGBLED
+#define INDICATOR_RGB false // ESP32S3 Supermini internal RGBLED is RGB
 
 // ESP32C3 SuperMini (Generic)
 //#define LED_PIN 4 // ESP32C3 Supermini external (4th pin down to right of USB controller)
 //#define LED_PIN_INDICATOR 8 // ESP32C3 Supermini internal RGBLED
 //#define INDICATOR_RGB false // ESP32C3 Supermini internal RGBLED is not RGB
 
-// ESP32S3 SuperMini (Generic)
-//#define LED_PIN 13 // ESP32S3 Supermini external (4th pin down to right of USB controller)
-//#define LED_PIN 48 // ESP32S3 Supermini internal RGBLED
-//#define LED_PIN_INDICATOR 48 //PIN_NEOPIXEL // ESP32S3 Supermini internal RGBLED
-//#define INDICATOR_RGB false // ESP32S3 Supermini internal RGBLED is RGB
+
 
 // ESP32C6 SuperMini (Generic)
 //#define LED_PIN 20 // ESP32C6 Supermini external (4th pin down to right of USB controller)
@@ -86,20 +93,21 @@ enum Commands {
   AddWhite, // 0x07 -- (W) white
   AddOrangeRed, // 0x08
   AddLeafGreen, // 0x09
-  AddMediumBlue, // 0x0A
-  IncreaseMutationRate, // 0x0B -- (FLASH) 
-  AddOrange, // 0x0C
-  AddSkyBlue, // 0x0D
-  AddPurple, // 0x0E
-  SmoothMode, // 0x0F -- Top organism is displayed only
-  AddKhaki, // 0x10
-  AddTurquoise, // 0x11
-  AddViolet, // 0x12
-  FadeMode, // 0x13 -- Move the top organism along the light string 
-  AddYellow, // 0x14
-  AddDarkBlue, // 0x15
-  AddMagenta, // 0x16
-  StrobeMode, // 0x17 -- Default (each organism cycled across a single pixel)
+  AddMediumBlue, // 0x0A (10)
+  IncreaseMutationRate, // 0x0B (11) -- (FLASH) 
+  AddOrange, // 0x0C (12)
+  AddSkyBlue, // 0x0D (13)
+  AddPurple, // 0x0E (14)
+  SmoothMode, // 0x0F (15) -- run evolution for 100 generations
+  AddKhaki, // 0x10 (16)
+  AddTurquoise, // 0x11 (17)
+  AddViolet, // 0x12 (18)
+  FadeMode, // 0x13 (19) -- slower cycling with more smoothing steps 
+  AddYellow, // 0x14 (20)
+  AddDarkBlue, // 0x15 (21)
+  AddMagenta, // 0x16 (22)
+  StrobeMode, // 0x17 (23) -- faster cycling with fewer steps
+  ClearMem, // 0x18 (24)
 };
 
 class MyCallbacks: public BLECharacteristicCallbacks {
@@ -175,6 +183,17 @@ void CheckCommands()
 void ActionIndicator(byte r, byte g, byte b, int pauselength=100)
 {
     FlashIndicator(1);
+}
+
+void ResetLightConfig()
+{
+    // set memory
+    preferences.putFloat(__BRIGHTNESS_KEY__, __BRIGHTNESS_SCALE__);
+    
+    // also set live value
+    BrightnessScale = __BRIGHTNESS_SCALE__;
+
+    Brighten(); // brighten (no-op except for setting the strip state)
 }
 
 void Brighten()
@@ -341,30 +360,36 @@ void ActionCommand(Commands cmd)
             Engine.increase_bias(true, false, true); // red+blue = purple
             Engine.increase_bias(true, false, false); // red
             break;
-        case FadeMode: // 0x13  
+        case FadeMode: // 0x13 (19) -- slower cycling with more smoothing steps
             DEBUG_INFO("FadeMode");
             ActionIndicator(0, 255, 255);
             increase_fade();
             ActionIndicator(0, 0, 0, 3);
             break;
-        case AddYellow: // 0x14
+        case AddYellow: // 0x14 (20)
             DEBUG_INFO("AddYellow");
             Engine.increase_bias(true, true, false); // red+green = yellow
             break;
-        case AddDarkBlue: // 0x15
+        case AddDarkBlue: // 0x15 (21)
             DEBUG_INFO("AddDarkBlue");
             Engine.increase_bias(false, false, true); // red+green = yellow
             break;
-        case AddMagenta: // 0x16
+        case AddMagenta: // 0x16 (22)
             DEBUG_INFO("AddMagenta");
             Engine.increase_bias(true, false, true); // red+blue = purple
             Engine.increase_bias(true, false, false); // red
             Engine.increase_bias(true, false, false); // red
             break;
-        case StrobeMode: // 0x17 -- Default (each organism cycled across a single pixel)
+        case StrobeMode: // 0x17 (23) -- faster cycling fewer smoothing steps
             DEBUG_INFO("StrobeMode");
             ActionIndicator(255, 0, 0);
             decrease_fade();
+            ActionIndicator(0, 0, 0, 3);
+            break;
+        case ClearMem: // 0x18 (24)
+            DEBUG_INFO("ClearMem");
+            ActionIndicator(255, 0, 0);
+            ResetLightConfig();
             ActionIndicator(0, 0, 0, 3);
             break;
         default:
@@ -426,7 +451,7 @@ void setup() {
 
     FlashIndicator(2);
 
-
+    Serial.println(DEVICE_NAME);
     Serial.println("Scanning...");
 
     preferences.begin("helix", false);
